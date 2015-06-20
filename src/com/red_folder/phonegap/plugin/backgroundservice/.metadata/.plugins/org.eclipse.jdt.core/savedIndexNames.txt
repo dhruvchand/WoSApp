@@ -1,0 +1,2 @@
+INDEX VERSION 1.127+F:\WoSApp New\WoSApp\platforms\android\src\com\red_folder\phonegap\plugin\backgroundservice\.metadata\.plugins\org.eclipse.jdt.core
+925999981.index

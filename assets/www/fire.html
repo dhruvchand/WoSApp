@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, target-densitydpi=medium-dpi" />
+
+        <link rel="stylesheet"  href="libs/jQM-flat/jquery.mobile.flatui.css">
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <script src="js/shake.js"></script>
+        <title>WoSApp</title>
+    </head>
+    <body>
+        <div id="app">
+            <br/><br/>
+            <a onclick="cancelled()" data-role="button" data-icon="delete" data-iconpos="bottom" ><span id='cancel' style="text-size:40px;">CANCEL EMERGENCY BY CLICKING HERE! </span></a>
+        </div>
+        
+
+            
+            
+
+
+        <script type="text/javascript" src="libs/fastclick.min.js"></script>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="libs/jquery-2.0.3.min.js"></script>
+        <script type="text/javascript" src="libs/jQueryMobile/jquery.mobile-1.3.2.min.js"></script>
+
+
+        <script type="text/javascript" src="js/index.js"></script>
+
+        <script type="text/javascript">
+            app.initialize();
+        </script>
+        <script type="text/javascript">
+        var elapsed = 0; var interval;
+        var allgreen = true;
+
+        function cancelled()
+        {
+        clearInterval(interval);
+        elasped = -1;
+        allgreen = false;
+        var ref = window.open('_blank');
+ref.addEventListener('loadstop', function(event) {
+    if (event.url.match("mobile/close")) {
+        ref.close();
+    }
+});
+
+        window.location = "/mobile/close";
+        }
+
+       $( document ).ready(function() {
+
+                interval = setInterval(countdown,1000);
+
+        });
+
+        function countdown()
+        {
+        if(elapsed <=4)
+        {
+        $("#cancel").html("CANCEL EMERGENCY! <br/> Time till emergency broadcast: " + (5-elapsed));
+        elapsed++;
+        navigator.notification.vibrate(1000);
+        }
+        else
+        {
+            sendBroadcast();
+        }
+        }
+
+    function sendBroadcast()
+    {
+    clearInterval(interval);
+    alert("start");
+    navigator.geolocation.getCurrentPosition(onLocationSuccess, onError);
+    }
+
+var onLocationSuccess = function(position) {
+alert(position);
+        packageMessage(position);
+
+};
+
+
+function packageMessage(position)
+{
+
+ var msgObj = {};
+ storedSettings = JSON.parse(window.localStorage.getItem("WoSApp"));
+
+
+ msgObj.pn = storedSettings.ph;
+ msgObj.lat = position.coords.latitude;
+ msgObj.lon = position.coords.longitude ;
+ msgObj.em = storedSettings.contact1.name + "|"+ storedSettings.contact1.number + "|"+ storedSettings.contact2.name + "|"+ storedSettings.contact2.number+ "|"+ storedSettings.contact3.name + "|"+ storedSettings.contact3.number;
+
+var marshalledObj = "!WSA" + btoa(JSON.stringify(msgObj));
+alert(marshalledObj);
+
+
+        var options = {
+            replaceLineBreaks: false, // true to replace \n by a new line, false by default
+            android: {
+                //intent: 'INTENT'  // send SMS with the native android SMS messaging
+                intent: '' // send SMS without open any other app
+            }
+        };
+
+
+           sms.send("9480805300", marshalledObj, options, success, error);
+
+
+
+
+}
+
+
+
+// onError Callback receives a PositionError object
+//
+
+function onError(error) {
+    alert('code: '    + error.code    + '\n' +
+          'message: ' + error.message + '\n');
+}
+
+        var success = function () { phonedialer.dial(storedSettings.contact1.number,function(err) {}, function(success) {}); };
+        var error = function (e) { alert('Message Failed:' + e); };
+
+
+
+
+
+
+
+        </script>
+    </body>
+</html>
